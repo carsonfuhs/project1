@@ -1,0 +1,17 @@
+body {
+    text-align: center;
+    font-family: Oswald;
+}
+
+h1 {
+    margin: 8% 0 0 0;
+    
+}
+
+.userInput {
+    margin: 20px 0 0 5px;
+}
+
+/* h4 {
+    text-align: left;
+} */
