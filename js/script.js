@@ -50,22 +50,30 @@ $("#submitButton").on("click", function(event) {
         $.ajax({url: apiURL + "company-news?symbol=" + userTickerInput + "&from=2021-01-01&to=2021-03-03" + apiKey}),
     ).then(
         (data1, data2) => {
-            console.log(data1[0].c)
-            console.log(data2[0][0])
             //behavior of the API is all 0's when an invalid ticker is sent. This catches it.
             if (data1[0].l === 0 & data1[0].h === 0 & data1[0].c === 0) {
                 console.log("that ticker doesn't exist")
             } else {
+            //shows last stock price
                 const lastPrice = data1[0].c;
                 let $stock = $("<h2>").addClass("stock-price");
                 $("body").append($stock);
                 $(".stock-price").html('Price: ' + lastPrice)
 
-                let newsHeadline = data2[0][0].headline;
-                console.log(newsHeadline)
-                let $newsHeadline = $("<h2>").addClass("stock-news-headline");
-                $("body").append($newsHeadline);
-                $(".stock-news-headline").html('Latest Headline: ' + newsHeadline)
+            //shows latest news headline
+                //let newsHeadline = data2[0][0].headline;
+                //console.log(newsHeadline)
+                $newsTitle = $("<h2>").addClass("stock-news-title");
+                $newsList = $("<ul>").addClass("stock-news-list");
+                $newsItem = $("<li>")
+                $("body").append($newsTitle);
+                $("body").append($newsList);
+                $(".stock-news-title").html('Related News Headlines:')
+
+                for (let i = 0; i < 5; i++) {
+                    console.log(data2[0][i].headline)
+                    $(".stock-news-list").append("<li><a href=" + data2[0][i].headline + "</li>")
+                }
             }
         },
         (error1) => {
