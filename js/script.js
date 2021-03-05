@@ -8,120 +8,81 @@
 const apiURL = "https://finnhub.io/api/v1/"
 const apiKey = "&token=c0ta3b748v6r4maenot0" //includes token value - attached to end of each API hit
 
-
-
-// $.ajax({
-//     url: apiURL + 
-// })
-
-//console.log(apiURL + "quote?symbol=AAPL" + apiKey)
-// hello
-
-//const submitButton = $("#submitButton")
-
-// const submitButton = document.querySelector("#submitButton");
-// //let userTickerInput, testVar;
-
-// submitButton.addEventListener("click", (event) => {
-//     console.log(event);
-//     console.log("success");
-//     const userTickerInput = document.getElementById("tickerInput").value;
-//     console.log(userTickerInput);
-//     let testVar = 4;
-//     console.log(testVar)
-// });
-// let user;
-
-///let userTickerInput;
-
-// function getTicker() {
-//     userTickerInput = $("tickerInput").val();
-// }
-
 $("#submitButton").on("click", function(event) {
     event.preventDefault(); //prevents page refresh
-    $(".stock-price").remove() //clears page if there's other stock details
-    $(".stock-news-headline").remove()
 
-    const userTickerInput = $("#tickerInput").val();
+    //clears page if there's other stock details
+    $(".stock-price").remove() 
+    $(".stock-news-title").remove()
+    $(".stock-news-list").remove()
+    $(".ticker-error").remove()
+    $(".company-profile").remove()
 
+    //grabs user input, makes it uppercase
+    let userTickerInput = $("#tickerInput").val();
+    userTickerInput = userTickerInput.toUpperCase()
+
+    //gets today's date and the date 21 days ago. Probably not the most elegent way to do this but, well, it works.
+    let today = new Date().toISOString().slice(0,10)
+    let threeWeeksAgo = new Date(today)
+    threeWeeksAgo.setDate(threeWeeksAgo.getDate() - 21)
+    threeWeeksAgo = threeWeeksAgo.toISOString().slice(0,10)
+
+    //hitting multiple API's and getting information
     $.when(
         $.ajax({url: apiURL + "quote?symbol=" + userTickerInput + apiKey}),
-        $.ajax({url: apiURL + "company-news?symbol=" + userTickerInput + "&from=2021-01-01&to=2021-03-03" + apiKey}),
+        $.ajax({url: apiURL + "company-news?symbol=" + userTickerInput + "&from=2021-01-25&to=2021-03-03" + apiKey}),
+        $.ajax({url: apiURL + "stock/profile2?symbol=" + userTickerInput + apiKey}),
     ).then(
-        (data1, data2) => {
+        (quote, companyNews, companyProfile) => {
+
             //behavior of the API is all 0's when an invalid ticker is sent. This catches it.
-            if (data1[0].l === 0 & data1[0].h === 0 & data1[0].c === 0) {
-                console.log("that ticker doesn't exist")
+            //not the best solution but will update in the future.
+            if (quote[0].l === 0 & quote[0].h === 0 & quote[0].c === 0) {
+                let $tickerError = $("<h2>").addClass("ticker-error");
+                $("body").append($tickerError);
+                $(".ticker-error").html("Sorry, we couldn't find that ticker.")
             } else {
+
+            //company information
+                const companyName = companyProfile[0].name;
+                const companyWebsite = companyProfile[0].weburl;
+                let $companyProfile = $("<h2>").addClass("company-profile");
+                let $companyWebsite = $("<h2>").addClass("company-website");
+                $("body").append($companyProfile);
+                $("body").append($companyWebsite);
+                $(".company-profile").html("Company: " + companyName)
+                $(".company-website").html("<a href=" + companyWebsite + " target=_blank>" + companyWebsite)
+
             //shows last stock price
-                const lastPrice = data1[0].c;
+                const lastPrice = quote[0].c;
                 let $stock = $("<h2>").addClass("stock-price");
                 $("body").append($stock);
-                $(".stock-price").html('Price: ' + lastPrice)
+                $(".stock-price").html('Last share price:  $' + lastPrice)
 
-            //shows latest news headline
-                //let newsHeadline = data2[0][0].headline;
-                //console.log(newsHeadline)
+            //creates items on DOM
                 $newsTitle = $("<h2>").addClass("stock-news-title");
                 $newsList = $("<ul>").addClass("stock-news-list");
-                $newsItem = $("<li>")
                 $("body").append($newsTitle);
                 $("body").append($newsList);
                 $(".stock-news-title").html('Related News Headlines:')
 
-                for (let i = 0; i < 5; i++) {
-                    console.log(data2[0][i].headline)
-                    $(".stock-news-list").append("<li><a href=" + data2[0][i].headline + "</li>")
+                //loops through news array, takes most recent 5, adds as unordered list, links open in new tab
+                for (let i = 0; i < 10; i++) {
+                    console.log(companyNews[0][i])
+                    $(".stock-news-list").append("<li><a href=" + companyNews[0][i].url + " target=_blank>" + companyNews[0][i].headline + "</li>")
                 }
+
             }
+
         },
+
         (error1) => {
             console.log("error")
+
         }
+
     )
-
-
-
-
-    // //gets the stock price
-    // $.ajax({
-    //     url: apiURL + "quote?symbol=" + userTickerInput + apiKey
-    // }).then(
-    //     (data) => {
-    //         console.log(data)
-    //         //behavior of the API is all 0's when an invalid ticker is sent. This catches it.
-    //         if (data.l === 0 & data.h === 0 & data.l === 0) {
-    //             console.log("that ticker doesn't exist")
-    //         } else {
-    //             const lastPrice = data.l;
-    //             let $stock = $("<h2>").addClass("stock-price");
-    //             $("body").append($stock);
-    //             $(".stock-price").html('Price: ' + lastPrice)
-    //         }
-    //     },
-    //     (error) => {
-    //         console.log("error")
-    //     }
-    // )
-    
-    // $.ajax({
-    //     url: apiURL + "company-news?symbol=" + userTickerInput + "&from=2021-01-01&to=2021-03-03" + apiKey
-    // }).then(
-    //     (data2) => {
-    //         //console.log(data2)
-    //         let newsHeadline = data2[0].headline;
-    //         console.log(newsHeadline)
-    //         let $newsHeadline = $("<h2>").addClass("stock-news-headline");
-    //         $("body").append($newsHeadline);
-    //         $(".stock-news-headline").html('Latest Headline: ' + newsHeadline)
-    //     },
-
-    //     (error) => {
-    //         console.log("error")
-    //     }
-
-    // )
     
 });
 
