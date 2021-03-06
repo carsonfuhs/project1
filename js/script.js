@@ -17,7 +17,8 @@ $("#submitButton").on("click", function(event) {
 
     //grabs user input, makes it uppercase
     let userTickerInput = $("#tickerInput").val();
-    userTickerInput = userTickerInput.toUpperCase()
+    userTickerInput = userTickerInput.toUpperCase();
+    $("#tickerInput").val("");
 
     //gets today's date and the date 21 days ago. Probably not the most elegent way to do this but, well, it works.
     let today = new Date().toISOString().slice(0,10)
